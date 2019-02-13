@@ -89,7 +89,7 @@
 
   vars_files:
     - credentials.yml
-    - epg_and_portgroup_details.yml
+    - /vars/epg_and_portgroup_details.yml
 
   vars:
     apic_info:              &apic_info
