@@ -1,0 +1,58 @@
+---
+# Create EPGs and Portgroups
+epg_and_portgroup_details:
+  - tn_name:               "CiscoLive"
+    ap_name:               "MyApp-01"
+    epg_name:              "portgroup-01"
+    vds_name:              "ssharman-vds-01"
+    vlan_id:               "11"
+    bd_name:               "192.168.10.0_24"
+
+  - tn_name:               "CiscoLive"
+    ap_name:               "MyApp-01"
+    epg_name:              "portgroup-02"
+    vds_name:              "ssharman-vds-01"
+    vlan_id:               "12"
+    bd_name:               "192.168.10.0_24"
+
+  - tn_name:               "CiscoLive"
+    ap_name:               "MyApp-01"
+    epg_name:              "portgroup-03"
+    vds_name:              "ssharman-vds-01"
+    vlan_id:               "13"
+    bd_name:               "192.168.10.0_24"
+
+  - tn_name:               "CiscoLive"
+    ap_name:               "MyApp-01"
+    epg_name:              "portgroup-04"
+    vds_name:              "ssharman-vds-01"
+    vlan_id:               "14"
+    bd_name:               "192.168.10.0_24"
+
+  - tn_name:               "CiscoLive"
+    ap_name:               "MyApp-02"
+    epg_name:              "portgroup-01"
+    vds_name:              "ssharman-vds-01"
+    vlan_id:               "15"
+    bd_name:               "192.168.10.0_24"
+
+  - tn_name:               "CiscoLive"
+    ap_name:               "MyApp-02"
+    epg_name:              "portgroup-02"
+    vds_name:              "ssharman-vds-01"
+    vlan_id:               "16"
+    bd_name:               "192.168.10.0_24"
+
+  - tn_name:               "CiscoLive"
+    ap_name:               "MyApp-02"
+    epg_name:              "portgroup-03"
+    vds_name:              "ssharman-vds-01"
+    vlan_id:               "17"
+    bd_name:               "192.168.10.0_24"
+
+  - tn_name:               "CiscoLive"
+    ap_name:               "MyApp-02"
+    epg_name:              "portgroup-04"
+    vds_name:              "ssharman-vds-01"
+    vlan_id:               "18"
+    bd_name:               "192.168.10.0_24"
