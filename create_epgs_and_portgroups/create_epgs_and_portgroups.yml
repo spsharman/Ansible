@@ -88,7 +88,7 @@
   gather_facts:             no
 
   vars_files:
-    - credentials.yml
+    - /creds/credentials.yml
     - /vars/epg_and_portgroup_details.yml
 
   vars:
@@ -177,8 +177,8 @@
   gather_facts:             no
 
   vars_files:
-    - credentials.yml
-    - epg_and_portgroup_details.yml
+    - /creds/credentials.yml
+    - /vars/epg_and_portgroup_details.yml
 
   vars:
     vcenter_info:           &vcenter_info
