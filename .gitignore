@@ -1,2 +1,4 @@
 */creds/
 */results/
+.DS_Store
+.retry
