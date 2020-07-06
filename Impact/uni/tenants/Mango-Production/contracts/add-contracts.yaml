@@ -43,7 +43,7 @@
 #               aci_contract_subject_to_filter
 #               bind-contract
 #==============================================================================================
-- import_playbook:        ../../../snapshot.yaml
+- import_playbook:        ../../../snapshot-local.yaml
   vars:
     snapshotDescription:  Prior-to-Mango-Production-Contracts
   tags:                   snapshot
