@@ -44,7 +44,7 @@
 #==============================================================================================
 - import_playbook:            ../../../snapshot-local.yaml
   vars:
-    snapshotDescription:      Prior-to-configuring-Database-APs
+    snapshotDescription:      Prior-to-Mango-Database-Contracts
   tags:                       snapshot
 
 #==============================================================================================

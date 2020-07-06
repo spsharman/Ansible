@@ -44,7 +44,7 @@
 #==============================================================================================
 - import_playbook:            ../../../snapshot-local.yaml
   vars:
-    snapshotDescription:      Prior-to-configuring-Blogs-APs
+    snapshotDescription:      Prior-to-Mango-Production-Blog-AP
   tags:                       snapshot
 
 #==============================================================================================
