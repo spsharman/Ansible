@@ -1,0 +1,100 @@
+---
+#==============================================================================================
+# Global Configuration
+#==============================================================================================
+- name:                   Define global settings
+  hosts:                  localhost
+  connection:             local
+  gather_facts:           no
+
+  vars_files:
+     - ../../../global-vars/apic-details.yaml
+
+  tasks:
+    - name:
+      set_fact:
+        desired_state:    present
+        #desired_state:   absent
+        #desired_status:  modified,created
+        #desired_status:  deleted
+
+    - name:               apic details
+      set_fact:
+        apic_info:        &apic_info
+          host:           "{{ apic_info.host }}"
+          username:       "{{ apic_info.username }}"
+          password:       "{{ apic_info.password }}"
+          validate_certs: no
+
+        rest_info:        &rest_info
+          use_proxy:      no
+          path:           /api/mo/.json
+          method:         post
+  tags:                   always
+
+#==============================================================================================
+# Begin Plays
+#
+# Available Tags:
+#               snapshot
+#               bridge-domains
+#               gateways
+#==============================================================================================
+- import_playbook:        ../../../snapshot.yaml
+  vars:
+    snapshotDescription:  Prior-to-configuring-Common-Tenant-Bridge-Domains-and-Gateways
+  tags:                   snapshot
+
+#==============================================================================================
+# Create Bridge Domains
+#==============================================================================================
+- name:                   Configure Bridge Domains
+  hosts:                  localhost
+  connection:             local
+  gather_facts:           no
+
+  vars_files:
+     - ./vars/bridge-domain-vars.yaml
+
+  tasks:
+    - name:               Create/Delete Bridge Domain
+      aci_bd:
+        <<:               *apic_info
+        tenant:           "{{ item.tenant }}"
+        vrf:              "{{ item.vrf }}"
+        bd:               "{{ item.bd }}"
+        description:      "{{ item.descr }}"
+        state:            "{{ desired_state }}"
+      with_items:
+        - "{{ bd }}"
+      loop_control:
+        pause: 1
+  tags:
+    - bridge-domains
+
+#==============================================================================================
+# Add gateways to Bridge Domains
+#==============================================================================================
+- name:                   Configure Gateways
+  hosts:                  localhost
+  connection:             local
+  gather_facts:           no
+
+  vars_files:
+     - ./vars/bridge-domain-vars.yaml
+
+  tasks:
+    - name:               Create/Delete Bridge Domains
+      aci_bd_subnet:
+        <<:               *apic_info
+        tenant:           "{{ item.tenant }}"
+        bd:               "{{ item.bd }}"
+        gateway:          "{{ item.gw }}"
+        mask:             "{{ item.mask }}"
+        state:            "{{ desired_state }}"
+      with_items:
+        - "{{ gw }}"
+      loop_control:
+        pause: 1
+  tags:
+    - gateways

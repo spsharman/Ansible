@@ -1,0 +1,9 @@
+#==============================================================================================
+# Add Tenant names and descriptions
+#==============================================================================================
+tenants:
+  - tenant: "Mango-Production"
+    descr:  "Created using Ansible for Cisco IMPACT FY21"
+
+  - tenant: "Mango-Development"
+    descr:  "Created using Ansible for Cisco IMPACT FY21"
