@@ -12,6 +12,10 @@ tcp:
 
 - subject: "tcp"
   src_port: "any"
+  dst_port: "1433"
+
+- subject: "tcp"
+  src_port: "any"
   dst_port: "443"
 
 - subject: "tcp"

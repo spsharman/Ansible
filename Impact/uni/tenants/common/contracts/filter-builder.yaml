@@ -39,7 +39,7 @@
 #               snapshot
 #               filters
 #==============================================================================================
-- import_playbook:        ../../../snapshot.yaml
+- import_playbook:        ../../../snapshot-local.yaml
   vars:
     snapshotDescription:  Prior-to-configuring-Common-Tenant-Filters
   tags:                   snapshot
