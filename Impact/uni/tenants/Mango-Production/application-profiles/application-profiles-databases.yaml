@@ -2,10 +2,10 @@
 #==============================================================================================
 # Global Configuration
 #==============================================================================================
-- name:                   Define global settings
-  hosts:                  localhost
-  connection:             local
-  gather_facts:           no
+- name:                       Define global settings
+  hosts:                      localhost
+  connection:                 local
+  gather_facts:               no
 
   vars_files:
      - ../../../global-vars/apic-details.yaml
@@ -13,24 +13,24 @@
   tasks:
     - name:
       set_fact:
-        desired_state:    present
-        #desired_state:   absent
-        #desired_status:  modified,created
-        #desired_status:  deleted
+        desired_state:        present
+        #desired_state:       absent
+        #desired_status:      modified,created
+        #desired_status:      deleted
 
-    - name:               apic details
+    - name:                   apic details
       set_fact:
-        apic_info:        &apic_info
-          host:           "{{ apic_info.host }}"
-          username:       "{{ apic_info.username }}"
-          password:       "{{ apic_info.password }}"
-          validate_certs: no
+        apic_info:            &apic_info
+          host:               "{{ apic_info.host }}"
+          username:           "{{ apic_info.username }}"
+          password:           "{{ apic_info.password }}"
+          validate_certs:     no
 
-        rest_info:        &rest_info
-          use_proxy:      no
-          path:           /api/mo/.json
-          method:         post
-  tags:                   always
+        rest_info:            &rest_info
+          use_proxy:          no
+          path:               /api/mo/.json
+          method:             post
+  tags:                       always
 
 #==============================================================================================
 # Begin Plays
@@ -42,68 +42,70 @@
 #               domain
 #               static_binding
 #==============================================================================================
-- import_playbook:        ../../../snapshot.yaml
+- import_playbook:            ../../../snapshot-local.yaml
   vars:
-    snapshotDescription:  Prior-to-configuring-WordPress-APs-in-the-ctf-tenant
-  tags:                   snapshot
+    snapshotDescription:      Prior-to-configuring-Database-APs
+  tags:                       snapshot
 
 #==============================================================================================
 # Create Application Profile
 #==============================================================================================
-- name:                          Create Application Profiles, EPG and Bindings
-  hosts:                         localhost
-  connection:                    local
-  gather_facts:                  no
+- name:                       Create Application Profiles, EPG and Bindings
+  hosts:                      localhost
+  connection:                 local
+  gather_facts:               no
 
   vars_files:
-     - ./vars/wordPress-vars.yaml
+     - ./vars/databases-vars.yaml
 
   tasks:
-    - name:                      Create Application Profile
+    - name:                   Create Application Profile
       aci_ap:
-        <<:                      *apic_info
-        tenant:                  "{{ item.tenant }}"
-        ap:                      "{{ item.app_profile }}"
-        description:
-        state:                   "{{ desired_state }}"
+        <<:                   *apic_info
+        tenant:               "{{ item.tenant }}"
+        ap:                   "{{ item.app_profile }}"
+        description:          "{{ item.descr }}"
+        state:                "{{ desired_state }}"
       with_items:
         - "{{ ap }}"
       loop_control:
-        pause: 1
+        pause:                1
       tags:
         - ap
 
 
-    - name:                      Create EPG
+    - name:                   Create EPG
       aci_epg:
-        <<:                      *apic_info
-        tenant:                  "{{ item.tenant }}"
-        ap:                      "{{ item.app_profile }}"
-        bd:                      "{{ item.bd }}"
-        epg:                     "{{ item.epg }}"
-        description:
-        state:                   "{{ desired_state }}"
+        <<:                   *apic_info
+        tenant:               "{{ item.tenant }}"
+        ap:                   "{{ item.app_profile }}"
+        bd:                   "{{ item.bd }}"
+        epg:                  "{{ item.epg }}"
+        description:          "{{ item.descr }}"
+        state:                "{{ desired_state }}"
       with_items:
         - "{{ epg }}"
       loop_control:
-        pause: 1
+        pause:                1
       tags:
         - epg
 
 
-    - name:                      Add domain to an EPG
+    - name:                   Add domain to an EPG
       aci_epg_to_domain:
-        <<:                      *apic_info
-        tenant:                  "{{ item.tenant }}"
-        ap:                      "{{ item.app_profile }}"
-        epg:                     "{{ item.epg }}"
-        domain:                  "{{ item.domain_name }}"
-        domain_type:             "{{ item.domain_type }}"
-        vm_provider:             "{{ item.vm_provider }}"
-        state:                   "{{ desired_state }}"
+        <<:                   *apic_info
+        tenant:               "{{ item.tenant }}"
+        ap:                   "{{ item.app_profile }}"
+        epg:                  "{{ item.epg }}"
+        domain:               "{{ item.domain_name }}"
+        domain_type:          "{{ item.domain_type }}"
+        vm_provider:          "{{ item.vm_provider }}"
+        deploy_immediacy:     immediate
+        resolution_immediacy: immediate
+        state:                "{{ desired_state }}"
       with_items:
         - "{{ domain }}"
       loop_control:
-        pause: 1
+        pause:                1
       tags:
         - domain
