@@ -1,0 +1,107 @@
+#==============================================================================================
+# Global Configuration
+#==============================================================================================
+- name:                             Define global settings
+  hosts:                            localhost
+  connection:                       local
+  gather_facts:                     no
+
+#==============================================================================================
+# Set local and global variables
+#==============================================================================================
+  vars_files:
+    - ../../../global-vars/apic-details.yaml
+
+  tasks:
+    - name:
+      set_fact:
+        desired_state:
+          status:                   'modified,created'
+          #status:                  deleted
+
+#==============================================================================================
+# APIC access information
+#==============================================================================================
+    - name:                         apic details
+      set_fact:
+        apic_info:                  &apic_info
+          host:                     "{{ apic_info.host }}"
+          username:                 "{{ apic_info.username }}"
+          password:                 "{{ apic_info.password }}"
+          validate_certs:           no
+
+        rest_info:                  &rest_info
+          use_proxy:                no
+          path:                     /api/mo/.json
+          method:                   post
+  tags:                             always
+
+#==============================================================================================
+# Export Contract to Common
+#==============================================================================================
+- name:                             Export Contract to Common
+  hosts:                            localhost
+  connection:                       local
+  gather_facts:                     no
+
+  vars_files:
+    - ./vars/contract-vars.yaml
+
+  tasks:
+    - name:                         Export Contract
+      aci_rest:
+          <<:                       *apic_info
+          <<:                       *rest_info
+          content:
+            vzCPIf:
+              attributes:
+                dn:                 "uni/tn-common/cif-{{ item.cont_name }}"
+                name:               "{{ item.cont_name }}"
+                status:             'created,modified'
+              children:
+                - vzRsIf:
+                    attributes:
+                      tDn:          uni/tn-"{{ item.prov_tn_name }}"/brc-"{{ item.cont_name }}"
+                      status:       'created,modified'
+      with_items:
+        "{{ L3outContract }}"
+  tags:                             exportContract
+
+#==============================================================================================
+# Add Contract Interface to L3out
+#==============================================================================================
+- name:                             Add Contract Interface to L3out
+  hosts:                            localhost
+  connection:                       local
+  gather_facts:                     no
+
+  vars_files:
+    - ./vars/contract-vars.yaml
+
+  tasks:
+    - name:                         Add Contract
+      aci_rest:
+          <<:                       *apic_info
+          <<:                       *rest_info
+          content:
+            l3extInstP:
+              attributes:
+                annotation:         ''
+                descr:              ''
+                dn:                 uni/tn-common/out-L3Out_VRF_A1/instP-Rest_of_World
+                exceptionTag:       ''
+                floodOnEncap:       disabled
+                matchT:             AtleastOne
+                name:               Rest_of_World
+                nameAlias:          ''
+                prefGrMemb:         exclude
+                prio:               unspecified
+                targetDscp:         unspecified
+              children:
+                - fvRsConsIf:
+                    attributes:
+                      tnVzCPIfName: "{{ item.cont_name }}"
+                      status:       'created,modified'
+      with_items:
+        "{{ L3outContract }}"
+  tags:                             contractInterface
