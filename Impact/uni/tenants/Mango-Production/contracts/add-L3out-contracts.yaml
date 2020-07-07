@@ -165,7 +165,7 @@
               children:
                 - vzRsIf:
                     attributes:
-                      tDn:            uni/tn-"{{ item.prov_tn_name }}"/brc-"{{ item.cont_name }}"
+                      tDn:            "uni/tn-{{ item.prov_tn_name }}/brc-{{ item.cont_name }}"
                       status:         "{{ desired_status }}"
       with_items:
         "{{ L3outContract }}"

@@ -10,13 +10,14 @@
   vars_files:
      - ../../../global-vars/apic-details.yaml
 
+# Call configuration state from -e "@../../../global-vars/create.yaml"
+# or
+# Call configuration state from -e "@../../../global-vars/delete.yaml"
   tasks:
     - name:
       set_fact:
-        desired_state:                present
-        #desired_state:               absent
-        desired_status:               modified,created
-        #desired_status:              deleted
+        desired_state:        #present
+        desired_status:       #modified,created
 
     - name:                           apic details
       set_fact:
@@ -49,44 +50,10 @@
   tags:                               snapshot
 
 #==============================================================================================
-# Create the filters
+# Create filters in the common tenant
 #==============================================================================================
-- name:                               Configure filters
-  hosts:                              localhost
-  connection:                         local
-  gather_facts:                       no
-
-  vars_files:
-     - ./vars/contract-vars.yaml
-
-  tasks:
-    - name:                           Create Filter
-      aci_filter:
-        <<:                           *apic_info
-        tenant:                       "common"
-        filter:                       "{{ item.subject }}_src_port_{{ item.src_port }}_to_dst_port_{{ item.dst_port }}"
-        state:                        "{{ desired_state }}"
-      with_items:
-        "{{ L3outContract }}"
-      loop_control:
-        pause:                        1
-
-# Create a new filter entry
-    - name:                           Create Filter Entry
-      aci_filter_entry:
-        <<:                           *apic_info
-        filter:                       "{{ item.subject }}_src_port_{{ item.src_port }}_to_dst_port_{{ item.dst_port }}"
-        entry:                        "src_port_{{ item.src_port }}_to_dst_port_{{ item.dst_port }}"
-        tenant:                       "common"
-        ether_type:                   "ip"
-        ip_protocol:                  "{{ item. subject }}"
-        dst_port:                     "{{ item.dst_port }}"
-        state:                        "{{ desired_state }}"
-      with_items:
-        "{{ L3outContract }}"
-      loop_control:
-        pause:                        1
-  tags:                               filters
+- import_playbook:        ../../common/contracts/filter-builder.yaml
+  tags:                   filters
 
 #==============================================================================================
 # Add the contracts
@@ -201,7 +168,7 @@
               children:
                 - vzRsIf:
                     attributes:
-                      tDn:            uni/tn-"{{ item.prov_tn_name }}"/brc-"{{ item.cont_name }}"
+                      tDn:            "uni/tn-{{ item.prov_tn_name }}/brc-{{ item.cont_name }}"
                       status:         "{{ desired_status }}"
       with_items:
         "{{ L3outContract }}"

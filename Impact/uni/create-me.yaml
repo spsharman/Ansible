@@ -1,0 +1,14 @@
+---
+- import_playbook: ./setup-tenants.yaml
+
+- import_playbook: wait5.yaml
+
+- import_playbook: ./tenants/common/master.yaml
+
+- import_playbook: wait5.yaml
+
+- import_playbook: ./tenants/Mango-Development/master.yaml
+
+- import_playbook: wait5.yaml
+
+- import_playbook: ./tenants/Mango-Production/master.yaml
