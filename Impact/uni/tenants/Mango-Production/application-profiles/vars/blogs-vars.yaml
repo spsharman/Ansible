@@ -2,7 +2,7 @@
 # Application Profiles.
 #==============================================================================================
 ap:
-- tenant:      "Mango-Development"
+- tenant:      "Mango-Production"
   app_profile: "blogs.mango.com"
   descr:       "Created using Ansible for Cisco IMPACT FY21"
 
@@ -10,7 +10,7 @@ ap:
 # EPGs.
 #==============================================================================================
 epg:
-- tenant:      "Mango-Development"
+- tenant:      "Mango-Production"
   app_profile: "blogs.mango.com"
   bd:          "192.168.200.x_24"
   epg:         "blogs-web"
@@ -20,7 +20,7 @@ epg:
 # Domains.
 #==============================================================================================
 domain:
-- tenant:      "Mango-Development"
+- tenant:      "Mango-Production"
   app_profile: "blogs.mango.com"
   epg:         "blogs-web"
   domain_name: "ACI-B420"
