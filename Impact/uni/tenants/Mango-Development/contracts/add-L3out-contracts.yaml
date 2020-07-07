@@ -1,0 +1,247 @@
+---
+#==============================================================================================
+# Global Configuration
+#==============================================================================================
+- name:                               Define global settings
+  hosts:                              localhost
+  connection:                         local
+  gather_facts:                       no
+
+  vars_files:
+     - ../../../global-vars/apic-details.yaml
+
+  tasks:
+    - name:
+      set_fact:
+        desired_state:                present
+        #desired_state:               absent
+        desired_status:               modified,created
+        #desired_status:              deleted
+
+    - name:                           apic details
+      set_fact:
+        apic_info:                    &apic_info
+          host:                       "{{ apic_info.host }}"
+          username:                   "{{ apic_info.username }}"
+          password:                   "{{ apic_info.password }}"
+          validate_certs:             no
+
+        rest_info:                    &rest_info
+          use_proxy:                  no
+          path:                       /api/mo/.json
+          method:                     post
+  tags:                               always
+
+#==============================================================================================
+# Begin Plays
+#
+# Available Tags:
+#               snapshot
+#               filters
+#               contract
+#               subject
+#               aci_contract_subject_to_filter
+#               bind-contract
+#==============================================================================================
+- import_playbook:                    ../../../snapshot-local.yaml
+  vars:
+    snapshotDescription:              Prior-to-Mango-Production-Contracts
+  tags:                               snapshot
+
+#==============================================================================================
+# Create the filters
+#==============================================================================================
+- name:                               Configure filters
+  hosts:                              localhost
+  connection:                         local
+  gather_facts:                       no
+
+  vars_files:
+     - ./vars/contract-vars.yaml
+
+  tasks:
+    - name:                           Create Filter
+      aci_filter:
+        <<:                           *apic_info
+        tenant:                       "common"
+        filter:                       "{{ item.subject }}_src_port_{{ item.src_port }}_to_dst_port_{{ item.dst_port }}"
+        state:                        "{{ desired_state }}"
+      with_items:
+        "{{ L3outContract }}"
+      loop_control:
+        pause:                        1
+
+# Create a new filter entry
+    - name:                           Create Filter Entry
+      aci_filter_entry:
+        <<:                           *apic_info
+        filter:                       "{{ item.subject }}_src_port_{{ item.src_port }}_to_dst_port_{{ item.dst_port }}"
+        entry:                        "src_port_{{ item.src_port }}_to_dst_port_{{ item.dst_port }}"
+        tenant:                       "common"
+        ether_type:                   "ip"
+        ip_protocol:                  "{{ item. subject }}"
+        dst_port:                     "{{ item.dst_port }}"
+        state:                        "{{ desired_state }}"
+      with_items:
+        "{{ L3outContract }}"
+      loop_control:
+        pause:                        1
+  tags:                               filters
+
+#==============================================================================================
+# Add the contracts
+#==============================================================================================
+# naming structure:                   consumer tenant|app|epg to provider tenant|app|epg
+- name:                               Configure contract
+  hosts:                              localhost
+  connection:                         local
+  gather_facts:                       no
+
+  vars_files:
+     - ./vars/contract-vars.yaml
+
+  tasks:
+    - name:                           Add a new contract
+      aci_contract:
+        <<:                           *apic_info
+        tenant:                       "{{ item.prov_tn_name }}"
+        contract:                     "{{ item.cont_name }}"
+        description:                  "{{ item.description }}"
+        scope:                        "{{ item.scope }}"
+        state:                        "{{ desired_state }}"
+      with_items:
+        "{{ L3outContract }}"
+      loop_control:
+        pause:                        1
+      tags:                           contract
+
+    - name:                           Add a new contract subject
+      aci_contract_subject:
+        <<:                           *apic_info
+        tenant:                       "{{ item.prov_tn_name }}"
+        contract:                     "{{ item.cont_name }}"
+        subject:                      "{{ item.subject }}"
+        description:                  ""
+        reverse_filter:               yes
+#        priority:                    ""
+#        dscp:                        ""
+        state:                        "{{ desired_state }}"
+      with_items:
+        "{{ L3outContract }}"
+      loop_control:
+        pause:                        1
+      tags:                           subject
+
+    - name:                           Add a new contract subject to filter binding
+      aci_contract_subject_to_filter:
+        <<:                           *apic_info
+        tenant:                       "{{ item.prov_tn_name }}"
+        contract:                     "{{ item.cont_name }}"
+        subject:                      "{{ item.subject }}"
+        filter:                       "{{ item.subject }}_src_port_{{ item.src_port }}_to_dst_port_{{ item.dst_port }}"
+  #      log:                         none
+        state:                        "{{ desired_state }}"
+      with_items:
+        "{{ L3outContract }}"
+      loop_control:
+        pause:                        1
+      tags:                           subject-to-filter
+
+#==============================================================================================
+# Bind the contracts
+#==============================================================================================
+# naming structure:                   consumer tenant|app|epg to provider tenant|app|epg
+- name:                               Configure contracts between tenants
+  hosts:                              localhost
+  connection:                         local
+  gather_facts:                       no
+
+  vars_files:
+     - ./vars/contract-vars.yaml
+
+  tasks:
+    - name:                           Bind Contract to Provider EPG
+      aci_epg_to_contract:
+        <<:                           *apic_info
+        tenant:                       "{{ item.prov_tn_name }}"
+        ap:                           "{{ item.prov_ap_name }}"
+        epg:                          "{{ item.prov_epg_name }}"
+        contract:                     "{{ item.cont_name }}"
+        contract_type:                provider
+        state:                        "{{ desired_state }}"
+      with_items:
+        "{{ L3outContract }}"
+      loop_control:
+        pause:                        1
+  tags:                               bind-contract
+
+#==============================================================================================
+# Export Contract to Common
+#==============================================================================================
+- name:                               Export Contract to Common
+  hosts:                              localhost
+  connection:                         local
+  gather_facts:                       no
+
+  vars_files:
+    - ./vars/contract-vars.yaml
+
+  tasks:
+    - name:                           Export Contract
+      aci_rest:
+          <<:                         *apic_info
+          <<:                         *rest_info
+          content:
+            vzCPIf:
+              attributes:
+                dn:                   "uni/tn-common/cif-{{ item.cont_name }}"
+                name:                 "{{ item.cont_name }}"
+                descr:                "{{ item.description }}"
+                status:               "{{ desired_status }}"
+              children:
+                - vzRsIf:
+                    attributes:
+                      tDn:            uni/tn-"{{ item.prov_tn_name }}"/brc-"{{ item.cont_name }}"
+                      status:         "{{ desired_status }}"
+      with_items:
+        "{{ L3outContract }}"
+  tags:                               exportContract
+
+#==============================================================================================
+# Add Contract Interface to L3out
+#==============================================================================================
+- name:                               Add Contract Interface to L3out
+  hosts:                              localhost
+  connection:                         local
+  gather_facts:                       no
+
+  vars_files:
+    - ./vars/contract-vars.yaml
+
+  tasks:
+    - name:                           Add Contract
+      aci_rest:
+          <<:                         *apic_info
+          <<:                         *rest_info
+          content:
+            l3extInstP:
+              attributes:
+                annotation:           ''
+                descr:                ''
+                dn:                   uni/tn-common/out-L3Out_VRF_A1/instP-Rest_of_World
+                exceptionTag:         ''
+                floodOnEncap:         disabled
+                matchT:               AtleastOne
+                name:                 Rest_of_World
+                nameAlias:            ''
+                prefGrMemb:           exclude
+                prio:                 unspecified
+                targetDscp:           unspecified
+              children:
+                - fvRsConsIf:
+                    attributes:
+                      tnVzCPIfName:   "{{ item.cont_name }}"
+                      status:         "{{ desired_status }}"
+      with_items:
+        "{{ L3outContract }}"
+  tags:                               contractInterface
