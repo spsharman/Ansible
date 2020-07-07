@@ -13,7 +13,7 @@ epg:
 - tenant:      "Mango-Development"
   app_profile: "databases.mango.com"
   bd:          "192.168.200.x_24"
-  epg:         "blogs.mango.com"
+  epg:         "blogs-db"
   descr:       "Created using Ansible for Cisco IMPACT FY21"
 
 
@@ -23,7 +23,7 @@ epg:
 domain:
 - tenant:      "Mango-Development"
   app_profile: "databases.mango.com"
-  epg:         "blogs.mango.com"
+  epg:         "blogs-db"
   domain_name: "ACI-B420"
   domain_type: "vmm"
   vm_provider: "vmware"
