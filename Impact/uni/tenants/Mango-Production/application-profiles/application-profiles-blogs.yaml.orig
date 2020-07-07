@@ -10,14 +10,13 @@
   vars_files:
      - ../../../global-vars/apic-details.yaml
 
-# Call configuration state from -e "@../../../global-vars/create.yaml"
-# or
-# Call configuration state from -e "@../../../global-vars/delete.yaml"
   tasks:
     - name:
       set_fact:
-        desired_state:        #present
-        desired_status:       #modified,created
+        desired_state:        present
+        #desired_state:       absent
+        #desired_status:      modified,created
+        #desired_status:      deleted
 
     - name:                   apic details
       set_fact:

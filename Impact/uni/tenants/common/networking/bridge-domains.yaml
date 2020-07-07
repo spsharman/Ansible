@@ -10,13 +10,14 @@
   vars_files:
      - ../../../global-vars/apic-details.yaml
 
+# Call configuration state from -e "@../../../global-vars/create.yaml"
+# or
+# Call configuration state from -e "@../../../global-vars/delete.yaml"
   tasks:
     - name:
       set_fact:
-        desired_state:    present
-        #desired_state:   absent
-        #desired_status:  modified,created
-        #desired_status:  deleted
+        desired_state:    #present
+        desired_status:   #modified,created
 
     - name:               apic details
       set_fact:
@@ -40,7 +41,7 @@
 #               bridge-domains
 #               gateways
 #==============================================================================================
-- import_playbook:        ../../../snapshot.yaml
+- import_playbook:        ../../../snapshot-local.yaml
   vars:
     snapshotDescription:  Prior-to-configuring-Common-Tenant-Bridge-Domains-and-Gateways
   tags:                   snapshot

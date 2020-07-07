@@ -17,7 +17,9 @@
     - name:
       set_fact:
         desired_state:    #present
+        #desired_state:   absent
         desired_status:   #modified,created
+        #desired_status:  deleted
 
     - name:               apic details
       set_fact:
@@ -50,10 +52,44 @@
   tags:                   snapshot
 
 #==============================================================================================
-# Create filters in the common tenant
+# Create the filters
 #==============================================================================================
-- import_playbook:        ../../common/contracts/filter-builder.yaml
-  tags:                   filters
+- name:                               Configure filters
+  hosts:                              localhost
+  connection:                         local
+  gather_facts:                       no
+
+  vars_files:
+     - ./vars/contract-vars.yaml
+
+  tasks:
+    - name:                           Create Filter
+      aci_filter:
+        <<:                           *apic_info
+        tenant:                       "common"
+        filter:                       "{{ item.subject }}_src_port_{{ item.src_port }}_to_dst_port_{{ item.dst_port }}"
+        state:                        "{{ desired_state }}"
+      with_items:
+        "{{ contract }}"
+      loop_control:
+        pause: 1
+
+# Create a new filter entry
+    - name:                           Create Filter Entry
+      aci_filter_entry:
+        <<:                           *apic_info
+        filter:                       "{{ item.subject }}_src_port_{{ item.src_port }}_to_dst_port_{{ item.dst_port }}"
+        entry:                        "src_port_{{ item.src_port }}_to_dst_port_{{ item.dst_port }}"
+        tenant:                       "common"
+        ether_type:                   "ip"
+        ip_protocol:                  "{{ item. subject }}"
+        dst_port:                     "{{ item.dst_port }}"
+        state:                        "{{ desired_state }}"
+      with_items:
+        "{{ contract }}"
+      loop_control:
+        pause: 1
+  tags:                               filters
 
 #==============================================================================================
 # Add the contracts

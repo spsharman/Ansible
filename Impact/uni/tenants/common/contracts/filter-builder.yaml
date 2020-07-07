@@ -66,7 +66,7 @@
         <<:                          *apic_info
         tenant:                      "common"
         filter:                      "{{ item.subject }}_src_port_{{ item.src_port }}_to_dst_port_{{ item.dst_port }}"
-        state:                       "{{ desired_state }}"
+        state:                       present
       with_items:
         - "{{ filters.tcp }}"
         - "{{ filters.udp }}"
@@ -83,7 +83,7 @@
         ether_type:                  "ip"
         ip_protocol:                 "{{ item.subject }}"
         dst_port:                    "{{ item.dst_port }}"
-        state:                       "{{ desired_state }}"
+        state:                       present
 # Comment in/out filters as required
       with_items:
         - "{{ filters.tcp }}"
