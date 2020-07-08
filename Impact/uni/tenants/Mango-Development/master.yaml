@@ -9,6 +9,6 @@
 
 - import_playbook: ./contracts/add-contracts.yaml
 
-- import_playbook: ../../wait5.yaml
+#- import_playbook: ../../wait5.yaml
 
-- import_playbook: ./contracts/add-L3out-contracts.yaml
+#- import_playbook: ./contracts/add-L3out-contracts.yaml
