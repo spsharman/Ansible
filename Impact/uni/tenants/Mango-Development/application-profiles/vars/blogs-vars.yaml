@@ -12,7 +12,7 @@ ap:
 epg:
 - tenant:      "Mango-Development"
   app_profile: "blogs.mango.com"
-  bd:          "192.168.200.x_24"
+  bd:          "10.100.x.x_16"
   epg:         "blogs-web"
   descr:       "Created using Ansible for Cisco IMPACT FY21"
 
