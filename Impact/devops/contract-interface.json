@@ -1,0 +1,32 @@
+{
+  "fvAEPg": {
+    "attributes": {
+      "annotation": "",
+      "descr": "Created using Ansible for Cisco IMPACT FY21",
+      "dn": "uni/tn-Mango-Production/ap-blogs.mango.com/epg-blogs-web",
+      "exceptionTag": "",
+      "floodOnEncap": "disabled",
+      "fwdCtrl": "",
+      "hasMcastSource": "no",
+      "isAttrBasedEPg": "no",
+      "matchT": "AtleastOne",
+      "name": "blogs-web",
+      "nameAlias": "",
+      "pcEnfPref": "unenforced",
+      "prefGrMemb": "exclude",
+      "prio": "unspecified",
+      "shutdown": "no"
+    },
+    "children": [
+      {
+        "fvRsConsIf": {
+          "attributes": {
+            "annotation": "",
+            "prio": "unspecified",
+            "tnVzCPIfName": "tester"
+          }
+        }
+      }
+    ]
+  }
+}

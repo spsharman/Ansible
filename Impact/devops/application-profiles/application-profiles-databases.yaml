@@ -8,7 +8,7 @@
   gather_facts:               no
 
   vars_files:
-     - ../../../global-vars/apic-dave.yaml
+     - ../../../global-vars/apic-details.yaml
 
 # Call configuration state from -e "@../../../global-vars/create.yaml"
 # or

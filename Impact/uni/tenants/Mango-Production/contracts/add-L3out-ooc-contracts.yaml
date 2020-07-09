@@ -62,7 +62,7 @@
   gather_facts:                       no
 
   vars_files:
-     - ./vars/contract-vars.yaml
+     - ./vars/ooc-contract-vars.yaml
 
   tasks:
     - name:                           Add a new contract
@@ -121,7 +121,7 @@
   gather_facts:                       no
 
   vars_files:
-     - ./vars/contract-vars.yaml
+     - ./vars/ooc-contract-vars.yaml
 
   tasks:
     - name:                           Bind Contract to Provider EPG
@@ -148,7 +148,7 @@
   gather_facts:                       no
 
   vars_files:
-    - ./vars/contract-vars.yaml
+    - ./vars/ooc-contract-vars.yaml
 
   tasks:
     - name:                           Export Contract
@@ -180,7 +180,7 @@
   gather_facts:                       no
 
   vars_files:
-    - ./vars/contract-vars.yaml
+    - ./vars/ooc-contract-vars.yaml
 
   tasks:
     - name:                           Add Contract

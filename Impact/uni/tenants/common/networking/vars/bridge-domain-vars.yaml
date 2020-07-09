@@ -5,25 +5,12 @@ bd:
 - tenant: "common"
   vrf:   "VRF_A1"
   descr: "Created using Ansible for Cisco IMPACT FY21"
-  bd:    "192.168.200.x_24"
-
-- tenant: "common"
-  vrf:   "VRF_A1"
-  descr: "Created using Ansible for Cisco IMPACT FY21"
   bd:    "10.100.x.x_16"
 
 #==============================================================================================
 # Add Gateway IP addresses
 #==============================================================================================
 gw:
-- tenant: "common"
-  vrf:   "VRF_A1"
-  descr: "Created using Ansible for Cisco IMPACT FY21"
-  bd:    "192.168.200.x_24"
-  gw:    "192.168.200.1"
-  mask:  "24"
-  scope: "public"
-
 - tenant: "common"
   vrf:   "VRF_A1"
   descr: "Created using Ansible for Cisco IMPACT FY21"
@@ -36,12 +23,6 @@ gw:
 # Add L3Outs
 #==============================================================================================
 l3out:
-- tenant: "common"
-  vrf:   "VRF_A1"
-  descr: "Created using Ansible for Cisco IMPACT FY21"
-  bd:    "192.168.200.x_24"
-  l3out: "L3Out_VRF_A1"
-
 - tenant: "common"
   vrf:   "VRF_A1"
   descr: "Created using Ansible for Cisco IMPACT FY21"

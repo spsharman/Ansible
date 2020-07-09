@@ -1,0 +1,13 @@
+#==============================================================================================
+# APIC access information.
+#==============================================================================================
+    apic_info:        &apic_info
+      host:           10.49.153.178
+      username:       dave
+      password:       C1sco123
+      validate_certs: no
+
+    rest_info:        &rest_info
+      use_proxy:      no
+      path:           /api/mo/.json
+      method:         post

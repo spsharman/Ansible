@@ -2,27 +2,27 @@
 # Application Profiles.
 #==============================================================================================
 ap:
-- tenant:      "Mango-Production"
-  app_profile: "blogs.mango.com"
+- tenant:      "Mango-Development"
+  app_profile: "testers.mango.com"
   descr:       "Created using Ansible for Cisco IMPACT FY21"
 
 #==============================================================================================
 # EPGs.
 #==============================================================================================
 epg:
-- tenant:      "Mango-Production"
-  app_profile: "blogs.mango.com"
+- tenant:      "Mango-Development"
+  app_profile: "testers.mango.com"
   bd:          "10.100.x.x_16"
-  epg:         "blogs-web"
+  epg:         "robots"
   descr:       "Created using Ansible for Cisco IMPACT FY21"
 
 #==============================================================================================
 # Domains.
 #==============================================================================================
 domain:
-- tenant:      "Mango-Production"
-  app_profile: "blogs.mango.com"
-  epg:         "blogs-web"
+- tenant:      "Mango-Development"
+  app_profile: "testers.mango.com"
+  epg:         "robots"
   domain_name: "ACI-B420"
   domain_type: "vmm"
   vm_provider: "vmware"

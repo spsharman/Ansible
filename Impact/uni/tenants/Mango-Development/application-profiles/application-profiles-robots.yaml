@@ -45,7 +45,7 @@
 #==============================================================================================
 - import_playbook:            ../../../snapshot-local.yaml
   vars:
-    snapshotDescription:      Prior-to-Mango-Database-Contracts
+    snapshotDescription:      Prior-to-Mango-Development-Robots-AP
   tags:                       snapshot
 
 #==============================================================================================
@@ -57,7 +57,7 @@
   gather_facts:               no
 
   vars_files:
-     - ./vars/databases-vars.yaml
+     - ./vars/robots-vars.yaml
 
   tasks:
     - name:                   Create Application Profile

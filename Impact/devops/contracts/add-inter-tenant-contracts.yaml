@@ -1,0 +1,165 @@
+---
+#==============================================================================================
+# Global Configuration
+#==============================================================================================
+- name:                             Define global settings
+  hosts:                            localhost
+  connection:                       local
+  gather_facts:                     no
+
+  vars_files:
+     - ../../uni/global-vars/apic-details.yaml
+
+# Call configuration state from -e "@../../../global-vars/create.yaml"
+# or
+# Call configuration state from -e "@../../../global-vars/delete.yaml"
+  tasks:
+    - name:
+      set_fact:
+        desired_state:              #present
+        desired_status:             #modified,created
+
+    - name:                         apic details
+      set_fact:
+        apic_info:                  &apic_info
+          host:                     "{{ apic_info.host }}"
+          username:                 "{{ apic_info.username }}"
+          password:                 "{{ apic_info.password }}"
+          validate_certs:           no
+
+        rest_info:                  &rest_info
+          use_proxy:                no
+          path:                     /api/mo/.json
+          method:                   post
+  tags:                             always
+
+#==============================================================================================
+# Begin Plays
+#
+# Available Tags:
+#               snapshot
+#               filters
+#               contract
+#               subject
+#               aci_contract_subject_to_filter
+#               bind-contract
+#==============================================================================================
+
+#==============================================================================================
+# Add the contracts
+#==============================================================================================
+# naming structure:                 consumer tenant|app|epg to provider tenant|app|epg
+- name:                             Configure contract
+  hosts:                            localhost
+  connection:                       local
+  gather_facts:                     no
+
+  vars_files:
+     - ./vars/test-vars.yaml
+
+  tasks:
+    - name:                         Add a new contract
+      aci_contract:
+        <<:                         *apic_info
+        tenant:                     "{{ item.prov_tn_name }}"
+        contract:                   "{{ item.cont_name }}"
+        description:                "{{ item.description }}"
+        scope:                      "{{ item.scope }}"
+        state:                      "{{ desired_state }}"
+      with_items:
+        "{{ InterTenantContract }}"
+      loop_control:
+        pause:                      1
+      tags:                         contract
+
+#==============================================================================================
+# Bind the contracts
+#==============================================================================================
+# naming structure:                 consumer tenant|app|epg to provider tenant|app|epg
+- name:                             Configure contracts between tenants
+  hosts:                            localhost
+  connection:                       local
+  gather_facts:                     no
+
+  vars_files:
+     - ./vars/test-vars.yaml
+
+  tasks:
+    - name:                         Bind Contract to Provider EPG
+      aci_epg_to_contract:
+        <<:                         *apic_info
+        tenant:                     "{{ item.prov_tn_name }}"
+        ap:                         "{{ item.prov_ap_name }}"
+        epg:                        "{{ item.prov_epg_name }}"
+        contract:                   "{{ item.cont_name }}"
+        contract_type:              provider
+        state:                      "{{ desired_state }}"
+      with_items:
+        "{{ InterTenantContract }}"
+      loop_control:
+        pause:                      1
+  tags:                             bind-contract
+
+#==============================================================================================
+# Export Contract to target Tenant
+#==============================================================================================
+- name:                             Export Contract to target Tenant
+  hosts:                            localhost
+  connection:                       local
+  gather_facts:                     no
+
+  vars_files:
+    - ./vars/test-vars.yaml
+
+  tasks:
+    - name:                         Export Contract
+      aci_rest:
+          <<:                       *apic_info
+          <<:                       *rest_info
+          content:
+            vzCPIf:
+              attributes:
+                dn:                 "uni/tn-{{ item.cons_tn_name }}/cif-{{ item.cont_name }}"
+                name:               "{{ item.cont_name }}"
+                descr:              "{{ item.description }}"
+                status:             "{{ desired_status }}"
+              children:
+                - vzRsIf:
+                    attributes:
+                      tDn:          "uni/tn-{{ item.prov_tn_name }}/brc-{{ item.cont_name }}"
+                      status:       "{{ desired_status }}"
+      with_items:
+        "{{ InterTenantContract }}"
+  tags:                             exportContract
+
+#==============================================================================================
+# Add Contract Interface to Consumer EPG
+#==============================================================================================
+- name:                             Add Contract Interface to Consumer EPG
+  hosts:                            localhost
+  connection:                       local
+  gather_facts:                     no
+
+  vars_files:
+    - ./vars/test-vars.yaml
+
+  tasks:
+    - name:                         Add Contract
+      aci_rest:
+          <<:                       *apic_info
+          <<:                       *rest_info
+          content:
+            fvAEPg:
+              attributes:
+                descr:              "{{ item.description }}"
+                dn:                 "uni/tn-{{ item.cons_tn_name }}/ap-{{ item.cons_ap_name }}/epg-{{ item.cons_epg_name }}"
+                name:               "{{ item.cons_epg_name }}"
+              children:
+                - fvRsConsIf:
+                    attributes:
+                      tnVzCPIfName: "{{ item.cont_name }}"
+                      status:       "{{ desired_status }}"
+
+      with_items:
+        "{{ InterTenantContract }}"
+  tags:                             contractInterface

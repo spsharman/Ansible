@@ -10,11 +10,14 @@
   vars_files:
      - ../../../global-vars/apic-dave.yaml
 
+# Call configuration state from -e "@../../../global-vars/create.yaml"
+# or
+# Call configuration state from -e "@../../../global-vars/delete.yaml"
   tasks:
     - name:
       set_fact:
-        desired_state:    #present
-        desired_status:   #modified,created
+        desired_state:                #present
+        desired_status:               #modified,created
 
     - name:                           apic details
       set_fact:
@@ -43,14 +46,14 @@
 #==============================================================================================
 - import_playbook:                    ../../../snapshot-local.yaml
   vars:
-    snapshotDescription:              Prior-to-Mango-Production-L3out-Contracts
+    snapshotDescription:              Prior-to-Mango-Production-Contracts
   tags:                               snapshot
 
 #==============================================================================================
 # Create filters in the common tenant
 #==============================================================================================
-- import_playbook:        ../../common/contracts/filter-builder.yaml
-  tags:                   filters
+- import_playbook:                    ../../common/contracts/filter-builder.yaml
+  tags:                               filters
 
 #==============================================================================================
 # Add the contracts
@@ -62,7 +65,7 @@
   gather_facts:                       no
 
   vars_files:
-     - ./vars/contract-vars.yaml
+     - ./vars/ooc-contract-vars.yaml
 
   tasks:
     - name:                           Add a new contract
@@ -74,7 +77,7 @@
         scope:                        "{{ item.scope }}"
         state:                        "{{ desired_state }}"
       with_items:
-        "{{ L3outContract }}"
+        "{{ InterTenantContract }}"
       loop_control:
         pause:                        1
       tags:                           contract
@@ -85,13 +88,11 @@
         tenant:                       "{{ item.prov_tn_name }}"
         contract:                     "{{ item.cont_name }}"
         subject:                      "{{ item.subject }}"
-        description:                  ""
+        description:                  "{{ item.description }}"
         reverse_filter:               yes
-#        priority:                    ""
-#        dscp:                        ""
         state:                        "{{ desired_state }}"
       with_items:
-        "{{ L3outContract }}"
+        "{{ InterTenantContract }}"
       loop_control:
         pause:                        1
       tags:                           subject
@@ -103,10 +104,9 @@
         contract:                     "{{ item.cont_name }}"
         subject:                      "{{ item.subject }}"
         filter:                       "{{ item.subject }}_src_port_{{ item.src_port }}_to_dst_port_{{ item.dst_port }}"
-  #      log:                         none
         state:                        "{{ desired_state }}"
       with_items:
-        "{{ L3outContract }}"
+        "{{ InterTenantContract }}"
       loop_control:
         pause:                        1
       tags:                           subject-to-filter
@@ -121,7 +121,7 @@
   gather_facts:                       no
 
   vars_files:
-     - ./vars/contract-vars.yaml
+     - ./vars/ooc-contract-vars.yaml
 
   tasks:
     - name:                           Bind Contract to Provider EPG
@@ -134,21 +134,21 @@
         contract_type:                provider
         state:                        "{{ desired_state }}"
       with_items:
-        "{{ L3outContract }}"
+        "{{ InterTenantContract }}"
       loop_control:
         pause:                        1
   tags:                               bind-contract
 
 #==============================================================================================
-# Export Contract to Common
+# Export Contract to target Tenant
 #==============================================================================================
-- name:                               Export Contract to Common
+- name:                               Export Contract to target Tenant
   hosts:                              localhost
   connection:                         local
   gather_facts:                       no
 
   vars_files:
-    - ./vars/contract-vars.yaml
+    - ./vars/ooc-contract-vars.yaml
 
   tasks:
     - name:                           Export Contract
@@ -158,7 +158,7 @@
           content:
             vzCPIf:
               attributes:
-                dn:                   "uni/tn-common/cif-{{ item.cont_name }}"
+                dn:                   "uni/tn-{{ item.cons_tn_name }}/cif-{{ item.cont_name }}"
                 name:                 "{{ item.cont_name }}"
                 descr:                "{{ item.description }}"
                 status:               "{{ desired_status }}"
@@ -168,19 +168,19 @@
                       tDn:            "uni/tn-{{ item.prov_tn_name }}/brc-{{ item.cont_name }}"
                       status:         "{{ desired_status }}"
       with_items:
-        "{{ L3outContract }}"
+        "{{ InterTenantContract }}"
   tags:                               exportContract
 
 #==============================================================================================
-# Add Contract Interface to L3out
+# Add Contract Interface to Consumer EPG
 #==============================================================================================
-- name:                               Add Contract Interface to L3out
+- name:                               Add Contract Interface to Consumer EPG
   hosts:                              localhost
   connection:                         local
   gather_facts:                       no
 
   vars_files:
-    - ./vars/contract-vars.yaml
+    - ./vars/ooc-contract-vars.yaml
 
   tasks:
     - name:                           Add Contract
@@ -188,24 +188,17 @@
           <<:                         *apic_info
           <<:                         *rest_info
           content:
-            l3extInstP:
+            fvAEPg:
               attributes:
-                annotation:           ''
                 descr:                "{{ item.description }}"
-                dn:                   uni/tn-common/out-L3Out_VRF_A1/instP-Rest_of_World
-                exceptionTag:         ''
-                floodOnEncap:         disabled
-                matchT:               AtleastOne
-                name:                 Rest_of_World
-                nameAlias:            ''
-                prefGrMemb:           exclude
-                prio:                 unspecified
-                targetDscp:           unspecified
+                dn:                   "uni/tn-{{ item.cons_tn_name }}/ap-{{ item.cons_ap_name }}/epg-{{ item.cons_epg_name }}"
+                name:                 "{{ item.cons_epg_name }}"
               children:
                 - fvRsConsIf:
                     attributes:
                       tnVzCPIfName:   "{{ item.cont_name }}"
                       status:         "{{ desired_status }}"
+
       with_items:
-        "{{ L3outContract }}"
+        "{{ InterTenantContract }}"
   tags:                               contractInterface

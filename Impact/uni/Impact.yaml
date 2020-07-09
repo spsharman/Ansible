@@ -1,0 +1,6 @@
+---
+- import_playbook: ./tenants/Mango-Development/contracts/add-inter-tenant-ooc-contracts.yaml
+
+- import_playbook: wait5.yaml
+
+- import_playbook: ./tenants/Mango-Production/contracts/add-L3out-ooc-contracts.yaml

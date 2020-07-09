@@ -82,7 +82,7 @@ InterTenantContract:
   prov_tn_name:  "Mango-Development"
   prov_ap_name:  "databases.mango.com"
   prov_epg_name: "blogs-db"
-  cont_name:     "MangoProd_blogs_blogs-web_to_MangoDev_databases_blogs-db"
+  cont_name:     "export-test"
   description:   "Created using Ansible for Cisco IMPACT FY21"
   scope:         "context"
   subject:       "tcp"

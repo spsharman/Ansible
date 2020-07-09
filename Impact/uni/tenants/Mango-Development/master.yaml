@@ -7,6 +7,10 @@
 
 - import_playbook: ../../wait5.yaml
 
+- import_playbook: ./application-profiles/application-profiles-robots.yaml
+
+- import_playbook: ../../wait5.yaml
+
 - import_playbook: ./contracts/add-contracts.yaml
 
 #- import_playbook: ../../wait5.yaml

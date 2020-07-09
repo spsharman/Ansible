@@ -8,13 +8,16 @@
   gather_facts:                       no
 
   vars_files:
-     - ../../../global-vars/apic-dave.yaml
+     - ../../../global-vars/apic-details.yaml
 
+# Call configuration state from -e "@../../../global-vars/create.yaml"
+# or
+# Call configuration state from -e "@../../../global-vars/delete.yaml"
   tasks:
     - name:
       set_fact:
-        desired_state:    #present
-        desired_status:   #modified,created
+        desired_state:        #present
+        desired_status:       #modified,created
 
     - name:                           apic details
       set_fact:
@@ -43,7 +46,7 @@
 #==============================================================================================
 - import_playbook:                    ../../../snapshot-local.yaml
   vars:
-    snapshotDescription:              Prior-to-Mango-Production-L3out-Contracts
+    snapshotDescription:              Prior-to-Mango-Production-Contracts
   tags:                               snapshot
 
 #==============================================================================================
@@ -191,7 +194,7 @@
             l3extInstP:
               attributes:
                 annotation:           ''
-                descr:                "{{ item.description }}"
+                descr:                ''
                 dn:                   uni/tn-common/out-L3Out_VRF_A1/instP-Rest_of_World
                 exceptionTag:         ''
                 floodOnEncap:         disabled
