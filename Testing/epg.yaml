@@ -1,0 +1,29 @@
+#==============================================================================================
+# Application Profiles.
+#==============================================================================================
+epg:
+- tenant:      "Mango-Development"
+  app_profile: "databases.mango.com"
+  descr:       "Created using Ansible for Cisco IMPACT FY21"
+  epg:         "blogs-db"
+  bd:          "10.100.x.x_16"
+  domain_type: "vmm"
+  domain_name: "ACI-B420"
+  vm_provider: "vmware"
+
+#==============================================================================================
+# Bindings.
+#==============================================================================================
+contract:
+- cons_tn_name:  "Mango-Development"
+  cons_ap_name:  "blogs.mango.com"
+  cons_epg_name: "blogs-web"
+  prov_tn_name:  "Mango-Development"
+  prov_ap_name:  "databases.mango.com"
+  prov_epg_name: "blogs-db"
+  cont_name:     "MangoDev_blogs_blogs-web_to_MangoDev_databases_blogs-db"
+  description:   "Created using Ansible for Cisco IMPACT FY21"
+  scope:         "context"
+  subject:       "tcp"
+  src_port:      "any"
+  dst_port:      "1433"
